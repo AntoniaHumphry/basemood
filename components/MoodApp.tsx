@@ -313,7 +313,7 @@ export function MoodApp() {
                 onClick={handleRecordMood}
               >
                 {isBusy ? (
-                  <Loader2 size={18} aria-hidden="true" />
+                  <Loader2 className="spin" size={18} aria-hidden="true" />
                 ) : (
                   <Sparkles size={18} aria-hidden="true" />
                 )}
