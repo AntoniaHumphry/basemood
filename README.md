@@ -17,6 +17,10 @@ Copy `.env.example` to `.env.local` and fill in the deployed contract address af
 
 Deploy the app to Vercel with Base mainnet environment variables. The Mini App frame headers are configured in `vercel.json`.
 
+## Checks
+
+Run `npm run typecheck`, `npm run lint`, and `npm run build` before deploying.
+
 ## Contract
 
 The frontend calls `recordMood(uint8 mood, address referrer)` and reads points, daily status, last record time, history count, and recent history directly from the deployed Base mainnet contract.
