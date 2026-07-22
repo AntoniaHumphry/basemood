@@ -13,6 +13,10 @@ npm run dev
 
 Copy `.env.example` to `.env.local` and fill in the deployed contract address after deploying `contracts/BaseMood.sol`.
 
+## Deployment
+
+Deploy the app to Vercel with Base mainnet environment variables. The Mini App frame headers are configured in `vercel.json`.
+
 ## Contract
 
 The frontend calls `recordMood(uint8 mood, address referrer)` and reads points, daily status, last record time, history count, and recent history directly from the deployed Base mainnet contract.
