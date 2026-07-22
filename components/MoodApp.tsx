@@ -181,6 +181,15 @@ export function MoodApp() {
     hasRecordedToday === false &&
     !isBusy;
 
+  const recordButtonLabel = (() => {
+    if (isBusy) return 'Confirming Mood';
+    if (!isConnected) return 'Connect Wallet First';
+    if (!IS_CONTRACT_CONFIGURED) return 'Contract Not Configured';
+    if (!connectedToBase) return 'Switch to Base First';
+    if (hasRecordedToday) return 'Mood Recorded Today';
+    return "Record Today's Mood";
+  })();
+
   async function handleRecordMood() {
     if (!address) {
       setStatusMessage('Connect a wallet before recording your mood.');
@@ -317,9 +326,7 @@ export function MoodApp() {
                 ) : (
                   <Sparkles size={18} aria-hidden="true" />
                 )}
-                {hasRecordedToday
-                  ? 'Mood Recorded Today'
-                  : "Record Today's Mood"}
+                {recordButtonLabel}
               </button>
               <div className="reward">
                 {showReward ? `+${POINTS_PER_RECORD} points` : ''}
@@ -417,7 +424,7 @@ export function MoodApp() {
                       <div>
                         <strong>{mood.label}</strong>
                         <span>
-                          Day {dayId.toString()} · {formatDate(timestamp)}
+                          Day {dayId.toString()} / {formatDate(timestamp)}
                         </span>
                       </div>
                       <div className="history-points">

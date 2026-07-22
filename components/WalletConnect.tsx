@@ -57,7 +57,7 @@ export function WalletConnect() {
   ) {
     setMessage('');
     try {
-      await connectAsync({ connector, chainId: base.id });
+      await connectAsync({ connector });
       setOpen(false);
     } catch (error) {
       setMessage(

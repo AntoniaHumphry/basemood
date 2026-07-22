@@ -5,7 +5,7 @@ import { createConfig, http } from 'wagmi';
 import { base } from 'wagmi/chains';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { injected } from 'wagmi/connectors';
-import type { Hex } from 'viem';
+import type { EIP1193Provider, Hex } from 'viem';
 
 const ATTRIBUTION_DATA_SUFFIX_PLACEHOLDER =
   '[ENCODED_STRING_PLACEHOLDER]' as `0x${string}`;
@@ -24,11 +24,33 @@ export const okxConnector = injected({
       id: 'okx',
       name: 'OKX Wallet',
       provider(windowObject) {
-        const ethereum = windowObject?.ethereum;
-        const providers = ethereum?.providers ?? [ethereum];
-        return providers.find(
+        const typedWindow = windowObject as
+          | (Window & {
+              okxwallet?: EIP1193Provider & {
+                ethereum?: EIP1193Provider;
+                isOkxWallet?: true;
+                isOKExWallet?: true;
+              };
+            })
+          | undefined;
+        const okxWallet = typedWindow?.okxwallet;
+        const ethereum = typedWindow?.ethereum;
+        const providers = [
+          okxWallet?.ethereum,
+          okxWallet,
+          ...(ethereum?.providers ?? []),
+          ethereum,
+        ].filter(Boolean) as Array<
+          EIP1193Provider & {
+            isOkxWallet?: true;
+            isOKExWallet?: true;
+          }
+        >;
+
+        const provider = providers.find(
           (provider) => provider?.isOkxWallet || provider?.isOKExWallet,
         );
+        return provider as never;
       },
     };
   },
@@ -38,6 +60,7 @@ export const metaMaskConnector = injected({ target: 'metaMask' });
 
 export const coinbaseConnector = coinbaseWallet({
   appName: 'BaseMood',
+  appChainIds: [base.id],
 });
 
 export const config = createConfig({
