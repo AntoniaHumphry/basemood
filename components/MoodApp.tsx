@@ -233,9 +233,15 @@ export function MoodApp() {
       try {
         await sendCalls({
           account: address,
-          calls: [{ to: CONTRACT_ADDRESS, data: callData }],
+          calls: [
+            {
+              to: CONTRACT_ADDRESS,
+              data: callData,
+              dataSuffix: DATA_SUFFIX || undefined,
+            },
+          ],
           capabilities: DATA_SUFFIX
-            ? { dataSuffix: { value: DATA_SUFFIX } }
+            ? { dataSuffix: { value: DATA_SUFFIX, optional: true } }
             : undefined,
           chainId: base.id,
           experimental_fallback: true,
