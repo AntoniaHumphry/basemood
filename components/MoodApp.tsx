@@ -55,11 +55,6 @@ const moods = [
 type MoodId = (typeof moods)[number]['id'];
 type MoodEntry = readonly [number, bigint, bigint, bigint];
 
-function shortAddress(address?: Address) {
-  if (!address) return '';
-  return `${address.slice(0, 6)}...${address.slice(-4)}`;
-}
-
 function formatDate(timestamp?: bigint) {
   if (!timestamp || timestamp === 0n) return 'No record yet';
   return new Intl.DateTimeFormat('en', {
@@ -90,13 +85,11 @@ export function MoodApp() {
     mutateAsync: sendTransaction,
     data: hash,
     isPending: isAwaitingSignature,
-    error: writeError,
     reset,
   } = useSendTransaction();
   const {
     mutateAsync: sendCalls,
     isPending: isAwaitingCalls,
-    error: callsError,
   } = useSendCalls();
 
   const readsEnabled =
@@ -248,10 +241,8 @@ export function MoodApp() {
         });
         setStatusMessage('Mood call sent. Waiting for wallet confirmation.');
         return;
-      } catch (callsError) {
-        const message =
-          callsError instanceof Error ? callsError.message : String(callsError);
-        setStatusMessage(`Batch call fallback: ${message}`);
+      } catch {
+        setStatusMessage('Preparing a standard wallet transaction...');
       }
 
       const txHash = await sendTransaction({
@@ -261,12 +252,8 @@ export function MoodApp() {
         to: CONTRACT_ADDRESS,
       });
       setStatusMessage(`Transaction sent: ${txHash.slice(0, 10)}...`);
-    } catch (error) {
-      setStatusMessage(
-        error instanceof Error
-          ? error.message
-          : 'The transaction was rejected or failed before submission.',
-      );
+    } catch {
+      setStatusMessage('Transaction was not completed. Please try again.');
     }
   }
 
@@ -376,12 +363,6 @@ export function MoodApp() {
               <div className="reward">
                 {showReward ? `+${POINTS_PER_RECORD} points` : ''}
               </div>
-              {writeError ? (
-                <div className="message error">{writeError.message}</div>
-              ) : null}
-              {callsError ? (
-                <div className="message error">{callsError.message}</div>
-              ) : null}
               <div className="message">{statusMessage || nextActionText()}</div>
             </div>
           </section>
@@ -437,9 +418,6 @@ export function MoodApp() {
                   <Copy size={16} aria-hidden="true" />
                 </button>
               </div>
-              {address ? (
-                <span className="pill">Connected as {shortAddress(address)}</span>
-              ) : null}
             </div>
           </section>
 

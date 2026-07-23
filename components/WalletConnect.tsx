@@ -61,12 +61,8 @@ export function WalletConnect() {
     try {
       await connectAsync({ connector });
       setOpen(false);
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : `Could not connect ${label}.`,
-      );
+    } catch {
+      setMessage(`Could not connect ${label}. Please try again.`);
     }
   }
 
@@ -74,12 +70,8 @@ export function WalletConnect() {
     setMessage('');
     try {
       await switchChainAsync({ chainId: base.id });
-    } catch (error) {
-      setMessage(
-        error instanceof Error
-          ? error.message
-          : 'Could not switch to Base mainnet.',
-      );
+    } catch {
+      setMessage('Could not switch to Base mainnet. Please try from your wallet.');
     }
   }
 
