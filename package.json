@@ -12,6 +12,7 @@
     "@tanstack/react-query": "latest",
     "lucide-react": "^1.25.0",
     "next": "latest",
+    "ox": "^1.0.4",
     "react": "latest",
     "react-dom": "latest",
     "viem": "latest",
