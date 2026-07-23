@@ -5,7 +5,6 @@ import {
   Activity,
   Brain,
   CheckCircle2,
-  Copy,
   Flame,
   Frown,
   History,
@@ -38,7 +37,6 @@ import {
   CONTRACT_ADDRESS,
   IS_CONTRACT_CONFIGURED,
   POINTS_PER_RECORD,
-  REFERRAL_POINTS,
 } from '@/lib/contract';
 import { DATA_SUFFIX } from '@/lib/wagmi';
 import { WalletConnect } from '@/components/WalletConnect';
@@ -175,11 +173,6 @@ export function MoodApp() {
     },
   });
 
-  const referralLink =
-    typeof window !== 'undefined' && address
-      ? `${window.location.origin}${window.location.pathname}?ref=${address}`
-      : 'Connect wallet to create your referral link';
-
   const connectedToBase = isConnected && chainId === base.id;
   const isBusy = isAwaitingSignature || isAwaitingCalls || isConfirming;
   const canRecord =
@@ -255,12 +248,6 @@ export function MoodApp() {
     } catch {
       setStatusMessage('Transaction was not completed. Please try again.');
     }
-  }
-
-  async function copyReferralLink() {
-    if (!address) return;
-    await navigator.clipboard.writeText(referralLink);
-    setStatusMessage('Referral link copied.');
   }
 
   useEffect(() => {
@@ -392,35 +379,6 @@ export function MoodApp() {
         </div>
 
         <aside className="hero-panel">
-          <section className="panel">
-            <div className="section-title">
-              <div>
-                <h2>Referral link</h2>
-                <p>Referrers earn {REFERRAL_POINTS} points on first record.</p>
-              </div>
-            </div>
-            <div className="referral-row">
-              <div className="referral-actions">
-                <input
-                  className="referral-link"
-                  readOnly
-                  value={referralLink}
-                  aria-label="Referral link"
-                />
-                <button
-                  className="small-button"
-                  type="button"
-                  disabled={!address}
-                  onClick={copyReferralLink}
-                  aria-label="Copy referral link"
-                  title="Copy referral link"
-                >
-                  <Copy size={16} aria-hidden="true" />
-                </button>
-              </div>
-            </div>
-          </section>
-
           <section className="panel">
             <div className="section-title">
               <div>

@@ -281,8 +281,7 @@ button:disabled {
 }
 
 .status-row,
-.stat-grid,
-.referral-row {
+.stat-grid {
   display: grid;
   gap: 10px;
 }
@@ -381,23 +380,6 @@ button:disabled {
   text-align: center;
 }
 
-.referral-link {
-  width: 100%;
-  min-width: 0;
-  min-height: 42px;
-  padding: 0 11px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.68);
-  color: var(--ink);
-}
-
-.referral-actions {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 8px;
-}
-
 .message {
   min-height: 42px;
   padding: 11px 12px;
@@ -462,7 +444,4 @@ button:disabled {
     min-height: 88px;
   }
 
-  .referral-actions {
-    grid-template-columns: 1fr;
-  }
 }
