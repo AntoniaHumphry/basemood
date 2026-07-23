@@ -10,6 +10,7 @@ import {
 } from 'wagmi';
 import { base } from 'wagmi/chains';
 import {
+  baseAccountConnector,
   coinbaseConnector,
   metaMaskConnector,
   okxConnector,
@@ -19,6 +20,7 @@ const walletOptions = [
   { label: 'OKX Wallet', connector: okxConnector },
   { label: 'MetaMask', connector: metaMaskConnector },
   { label: 'Coinbase Wallet', connector: coinbaseConnector },
+  { label: 'Base Account', connector: baseAccountConnector },
 ] as const;
 
 function shortenAddress(address?: string) {

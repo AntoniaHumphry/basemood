@@ -1,8 +1,14 @@
 'use client';
 
 import { QueryClient } from '@tanstack/react-query';
-import { createConfig, http } from 'wagmi';
+import {
+  cookieStorage,
+  createConfig,
+  createStorage,
+  http,
+} from 'wagmi';
 import { base } from 'wagmi/chains';
+import { baseAccount } from 'wagmi/connectors';
 import { coinbaseWallet } from 'wagmi/connectors';
 import { injected } from 'wagmi/connectors';
 import { Attribution } from 'ox/erc8021';
@@ -12,7 +18,7 @@ const ATTRIBUTION_DATA_SUFFIX_PLACEHOLDER =
   '[ENCODED_STRING_PLACEHOLDER]' as `0x${string}`;
 const BUILDER_CODE = process.env.NEXT_PUBLIC_BUILDER_CODE ?? 'bc_75u6khho';
 
-function getDataSuffix(): Hex | undefined {
+export function getDataSuffix(): Hex | undefined {
   const value =
     process.env.NEXT_PUBLIC_DATA_SUFFIX ??
     ATTRIBUTION_DATA_SUFFIX_PLACEHOLDER;
@@ -24,6 +30,8 @@ function getDataSuffix(): Hex | undefined {
 
   return undefined;
 }
+
+export const DATA_SUFFIX = getDataSuffix();
 
 export const okxConnector = injected({
   target() {
@@ -70,12 +78,24 @@ export const coinbaseConnector = coinbaseWallet({
   appChainIds: [base.id],
 });
 
+export const baseAccountConnector = baseAccount({
+  appName: 'BaseMood',
+  appChainIds: [base.id],
+  preference: { options: 'all' },
+});
+
 export const config = createConfig({
   chains: [base],
-  connectors: [okxConnector, metaMaskConnector, coinbaseConnector],
-  dataSuffix: getDataSuffix(),
+  connectors: [
+    okxConnector,
+    metaMaskConnector,
+    coinbaseConnector,
+    baseAccountConnector,
+  ],
+  dataSuffix: DATA_SUFFIX,
   multiInjectedProviderDiscovery: false,
   ssr: true,
+  storage: createStorage({ storage: cookieStorage }),
   transports: {
     [base.id]: http(),
   },

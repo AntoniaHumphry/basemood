@@ -20,11 +20,19 @@ import {
   useAccount,
   useReadContract,
   useReadContracts,
+  useSendCalls,
+  useSendTransaction,
   useWaitForTransactionReceipt,
-  useWriteContract,
 } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { getAddress, isAddress, zeroAddress, type Address } from 'viem';
+import {
+  concatHex,
+  encodeFunctionData,
+  getAddress,
+  isAddress,
+  zeroAddress,
+  type Address,
+} from 'viem';
 import { baseMoodAbi } from '@/lib/abi';
 import {
   CONTRACT_ADDRESS,
@@ -32,6 +40,7 @@ import {
   POINTS_PER_RECORD,
   REFERRAL_POINTS,
 } from '@/lib/contract';
+import { DATA_SUFFIX } from '@/lib/wagmi';
 import { WalletConnect } from '@/components/WalletConnect';
 
 const moods = [
@@ -78,12 +87,17 @@ export function MoodApp() {
   const [showReward, setShowReward] = useState(false);
   const { address, chainId, isConnected } = useAccount();
   const {
-    mutateAsync: recordMood,
+    mutateAsync: sendTransaction,
     data: hash,
     isPending: isAwaitingSignature,
     error: writeError,
     reset,
-  } = useWriteContract();
+  } = useSendTransaction();
+  const {
+    mutateAsync: sendCalls,
+    isPending: isAwaitingCalls,
+    error: callsError,
+  } = useSendCalls();
 
   const readsEnabled =
     isConnected && Boolean(address) && IS_CONTRACT_CONFIGURED;
@@ -174,7 +188,7 @@ export function MoodApp() {
       : 'Connect wallet to create your referral link';
 
   const connectedToBase = isConnected && chainId === base.id;
-  const isBusy = isAwaitingSignature || isConfirming;
+  const isBusy = isAwaitingSignature || isAwaitingCalls || isConfirming;
   const canRecord =
     connectedToBase &&
     IS_CONTRACT_CONFIGURED &&
@@ -210,10 +224,35 @@ export function MoodApp() {
 
     try {
       const referrer = getReferrer(address);
-      const txHash = await recordMood({
-        ...commonContract,
+      const callData = encodeFunctionData({
+        abi: baseMoodAbi,
         functionName: 'recordMood',
         args: [selectedMood, referrer],
+      });
+
+      try {
+        await sendCalls({
+          account: address,
+          calls: [{ to: CONTRACT_ADDRESS, data: callData }],
+          capabilities: DATA_SUFFIX
+            ? { dataSuffix: { value: DATA_SUFFIX } }
+            : undefined,
+          chainId: base.id,
+          experimental_fallback: true,
+        });
+        setStatusMessage('Mood call sent. Waiting for wallet confirmation.');
+        return;
+      } catch (callsError) {
+        const message =
+          callsError instanceof Error ? callsError.message : String(callsError);
+        setStatusMessage(`Batch call fallback: ${message}`);
+      }
+
+      const txHash = await sendTransaction({
+        account: address,
+        chainId: base.id,
+        data: DATA_SUFFIX ? concatHex([callData, DATA_SUFFIX]) : callData,
+        to: CONTRACT_ADDRESS,
       });
       setStatusMessage(`Transaction sent: ${txHash.slice(0, 10)}...`);
     } catch (error) {
@@ -333,6 +372,9 @@ export function MoodApp() {
               </div>
               {writeError ? (
                 <div className="message error">{writeError.message}</div>
+              ) : null}
+              {callsError ? (
+                <div className="message error">{callsError.message}</div>
               ) : null}
               <div className="message">{statusMessage || nextActionText()}</div>
             </div>
