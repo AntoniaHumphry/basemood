@@ -75,12 +75,10 @@ export const metaMaskConnector = injected({ target: 'metaMask' });
 
 export const coinbaseConnector = coinbaseWallet({
   appName: 'BaseMood',
-  appChainIds: [base.id],
 });
 
 export const baseAccountConnector = baseAccount({
   appName: 'BaseMood',
-  appChainIds: [base.id],
   preference: { options: 'all' },
 });
 
